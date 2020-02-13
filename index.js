@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+/* eslint-disable no-template-curly-in-string */
 
 const fs = require('fs');
 const { argv } = require('yargs');
@@ -20,9 +22,9 @@ const pathsToPlists = Array.isArray(pathToPlist) ? pathToPlist : [pathToPlist];
 // getting next version
 const versionCurrent = info.version;
 const versions = helpers.versions(versionCurrent);
-let major = helpers.version(versions[0], argv.major);
-let minor = helpers.version(versions[1], argv.minor, argv.major);
-let patch = helpers.version(versions[2], argv.patch, argv.major || argv.minor);
+const major = helpers.version(versions[0], argv.major);
+const minor = helpers.version(versions[1], argv.minor, argv.major);
+const patch = helpers.version(versions[2], argv.patch, argv.major || argv.minor);
 const version = `${major}.${minor}.${patch}`;
 
 // getting next build number
@@ -103,13 +105,12 @@ const commit = update.then(() => {
     return helpers.commitVersionIncrease(version, message, [
       pathToPackage,
       ...pathsToPlists,
-      pathToGradle
+      pathToGradle,
     ]).then(() => {
       log.success(`Commit with files added. Run "git push".`, 1);
     });
-  } else {
-    log.warning(`Skipped.`, 1);
   }
+  log.warning(`Skipped.`, 1);
 });
 
 commit.then(() => {
