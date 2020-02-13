@@ -1,7 +1,6 @@
-'use strict';
 
 const fs = require('fs');
-const argv = require('yargs').argv;
+const { argv } = require('yargs');
 const readlineSync = require('readline-sync');
 
 const helpers = require('./lib/helpers');
@@ -34,6 +33,16 @@ const build = buildCurrent + 1;
 const messageTemplate = argv.m || argv.message || 'release ${version}: increase versions and build numbers';
 const message = messageTemplate.replace('${version}', version);
 
+const getConformation = (m, b) => {
+  let answer
+  if (argv.skip) answer = 'y'
+  else {
+    const question = log.info(m, b, true);
+    answer = readlineSync.question(question).toLowerCase();
+  }
+  return answer
+}
+
 log.info('\nI\'m going to increase the version in:');
 log.info(`- package.json (${pathToPackage});`, 1);
 log.info(`- ios project (${pathsToPlists.join(', ')});`, 1);
@@ -56,8 +65,7 @@ const chain = new Promise((resolve, reject) => {
     log.warning(`I can\'t understand format of the version "${versionCurrent}".`);
   }
 
-  const question = log.info(`Use "${version}" as the next version? [y/n] `, 0, true);
-  const answer = readlineSync.question(question).toLowerCase();
+  const answer = getConformation(`Use "${version}" as the next version? [y/n] `, 0)
   answer === 'y' ? resolve() : reject('Process canceled.');
 });
 
@@ -90,8 +98,7 @@ const commit = update.then(() => {
   log.info(`I want to add a tag:`, 1);
   log.info(`"v${version}"`, 2);
 
-  const question = log.info(`Do you allow me to do this? [y/n] `, 1, true);
-  const answer = readlineSync.question(question).toLowerCase();
+  const answer = getConformation('Do you allow me to do this? [y/n] ', 1)
   if (answer === 'y') {
     return helpers.commitVersionIncrease(version, message, [
       pathToPackage,
