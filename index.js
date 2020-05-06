@@ -119,3 +119,5 @@ commit.then(() => {
   log.line();
   log.error(e)
 });
+
+return build
